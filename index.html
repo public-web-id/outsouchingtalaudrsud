@@ -2,851 +2,925 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Outsourcing RSUD Talaud</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://apis.google.com/js/api.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Outsouring Kebersihan 2026 RSUD Talaud</title>
+    
+    <!-- Menggunakan Font Google: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Menggunakan Ikon Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Library untuk mengubah HTML menjadi Gambar -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- Library untuk PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         :root {
-            --primary-color: #1e40af;
-            --secondary-color: #3b82f6;
-            --accent-color: #f59e0b;
-            --dark-bg: #0f172a;
-            --light-bg: #f8fafc;
+            --primary-gradient: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            --accent-color: #d946ef;
+            --bg-body: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%);
+            --surface: #ffffff;
+            --text-main: #1e1b4b;
+            --text-muted: #8b5cf6;
+            --border: #e9d5ff;
+            --radius-card: 16px;
+            --radius-btn: 12px;
+            --shadow: 0 4px 20px rgba(124, 58, 237, 0.08);
+            --nav-height: 75px;
         }
 
-        * {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        .app-container {
+            width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh; position: relative;
         }
 
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
+        /* --- HEADER --- */
+        header {
+            background: var(--primary-gradient); color: white; padding: 1rem 1.25rem; padding-top: 1.5rem;
+            border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: var(--shadow); z-index: 20; flex-shrink: 0;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .brand h1 { font-size: 1.1rem; font-weight: 700; line-height: 1.3; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .brand span { font-size: 0.75rem; font-weight: 400; opacity: 0.9; display: block; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; overflow-y: auto; padding: 1.25rem; padding-bottom: calc(var(--nav-height) + 1.5rem); scrollbar-width: none; }
+        .main-content::-webkit-scrollbar { display: none; }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav {
+            position: absolute; bottom: 20px; left: 20px; right: 20px; height: var(--nav-height);
+            background: var(--primary-gradient);
+            border-radius: 24px; display: flex; justify-content: space-around; align-items: center; 
+            box-shadow: 0 -5px 25px rgba(124, 58, 237, 0.25); z-index: 50;
+            color: white;
+        }
+        .nav-item { 
+            flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.7rem; font-weight: 500; cursor: pointer; transition: all 0.3s; position: relative; 
+        }
+        .nav-item i { font-size: 1.7rem; margin-bottom: 4px; transition: transform 0.3s; }
+        
+        .nav-item.active { 
+            color: #ffffff; 
+            transform: translateY(-2px);
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        .nav-item.active i {
+            color: #ffffff;
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+        }
+        
+        .nav-item.active::after {
+            content: ''; position: absolute; bottom: 0; width: 30%; height: 4px;
+            background: rgba(255, 255, 255, 0.9); border-radius: 4px 4px 0 0;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        /* --- SECTIONS --- */
+        .view-section { display: none; animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .view-section.active { display: block; }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- COMPONENTS --- */
+        /* Info Bar (Date & Battery) */
+        .info-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: white; color: var(--text-muted); font-size: 0.8rem; padding: 0.75rem;
+            border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid var(--border); font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .battery-indicator { display: flex; align-items: center; gap: 5px; color: #10b981; font-weight: 700; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 2rem; }
+        .stat-card { background: var(--surface); padding: 1.25rem; border-radius: var(--radius-card); box-shadow: var(--shadow); border: 1px solid white; text-align: center; position: relative; overflow: hidden; transition: transform 0.2s; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary-gradient); }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .card-container { background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow); border: 1px solid white; overflow: hidden; margin-bottom: 1.5rem; }
+        h2 { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+        
+        /* Table */
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 400px; }
+        thead { background: #f8f7fc; }
+        th { padding: 1rem; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 1rem; border-bottom: 1px solid #f3f4f6; color: #4b5563; cursor: pointer; } /* Klikable row */
+        tr:hover td { background-color: #f8fafc; }
+        tr:nth-child(even) { background-color: #fafafa; }
+
+        /* Status */
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+        .status-bersih { background: #d1fae5; color: #065f46; }
+        .status-kotor { background: #fee2e2; color: #991b1b; }
+        .status-kotor-berat { background: #ef4444; color: white; }
+        .status-perbaikan { background: #fef3c7; color: #92400e; }
+        .status-stok { background: #e0e7ff; color: #3730a3; }
+
+        /* Form */
+        .form-group { margin-bottom: 1.1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
+        .form-control, select, textarea { 
+            width: 100%; padding: 0.9rem; border: 2px solid #f3f4f6; border-radius: var(--radius-btn); 
+            font-family: inherit; font-size: 0.95rem; background: #fafafa; transition: all 0.2s; 
+        }
+        /* Auto Uppercase style for visual feedback in input */
+        textarea.form-control { text-transform: uppercase; }
+        
+        .form-control:focus, select:focus { background: white; border-color: #a855f7; outline: none; box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1); }
+        .select-wrapper { position: relative; }
+        .select-wrapper::after { content: '\e9c5'; font-family: "Phosphor"; position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; }
+
+        .btn-submit {
+            width: 100%; background: var(--primary-gradient); color: white; padding: 1rem; border: none;
+            border-radius: var(--radius-btn); font-size: 1rem; font-weight: 600; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); transition: transform 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-submit:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
+
+        /* Camera & Gallery Selection */
+        .photo-selection-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        }
+        .photo-option-btn {
+            background: #f5f3ff; border: 2px solid #e9d5ff; border-radius: var(--radius-btn);
+            padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+        }
+        .photo-option-btn:active { transform: scale(0.96); background: #ede9fe; }
+        .photo-option-btn i { font-size: 2rem; color: #7c3aed; }
+        .photo-option-btn span { font-size: 0.8rem; font-weight: 600; color: #5b21b6; }
+        
+        .preview-box {
+            margin-top: 10px; border-radius: var(--radius-btn); overflow: hidden; display: none;
+            border: 2px solid #a855f7; position: relative;
+        }
+        .preview-box img { width: 100%; height: auto; display: block; }
+        .preview-box.has-file { display: block; }
+        .remove-btn {
+            position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.6); color: white;
+            border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: none;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
+        /* Empty State */
+        .empty-state { padding: 3rem 1.5rem; text-align: center; }
+        .empty-state i { font-size: 3rem; color: #ddd6fe; margin-bottom: 1rem; }
+        .empty-state p { color: #9ca3af; font-size: 0.9rem; }
 
-        ::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 4px;
-        }
+        /* Toast */
+        .toast-container { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 200; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: #1f2937; color: white; padding: 12px 16px; border-radius: 12px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; font-size: 0.9rem; animation: slideUpFade 0.3s forwards; pointer-events: auto; }
+        .toast.success { border-left: 4px solid #10b981; }
+        .toast.error { border-left: 4px solid #ef4444; }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
+        /* LOADING OVERLAY */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95);
+            z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center;
         }
-
-        /* Glass morphism effect */
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Glow effect */
-        .glow {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-        }
-
-        /* Fade in animation */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        /* Slide in animation */
-        @keyframes slideIn {
-            from {
-                transform: translateX(-100%);
-            }
-            to {
-                transform: translateX(0);
-            }
-        }
-
-        .slide-in {
-            animation: slideIn 0.4s ease-out;
-        }
-
-        /* Pulse animation */
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
-        .pulse-hover:hover {
-            animation: pulse 0.3s ease-in-out;
-        }
-
-        /* Card hover effect */
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Tab indicator */
-        .tab-indicator {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Loading spinner */
         .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top: 3px solid #3b82f6;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+            width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #7c3aed;
+            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem;
         }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { color: var(--text-main); font-weight: 600; font-size: 1rem; text-align: center; padding: 0 20px; }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* --- POPUP MODAL --- */
+        .popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); z-index: 3000;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px;
         }
-
-        /* Modal animation */
-        .modal-enter {
-            animation: modalEnter 0.3s ease-out;
-        }
-
-        @keyframes modalEnter {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        /* Button styles */
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        .popup-content {
+            background: white; width: 100%; max-width: 600px;
+            border-radius: 16px; padding: 20px;
+            max-height: 90vh; overflow-y: auto;
             position: relative;
-            overflow: hidden;
+            display: flex; flex-direction: column; gap: 15px;
         }
-
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn-primary:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        /* Form input styles */
-        .form-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        /* Status badge */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-active {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-        }
-
-        .status-inactive {
-            background: rgba(239, 68, 68, 0.2);
+        .close-popup-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: #f3f4f6; border: none;
+            width: 36px; height: 36px; border-radius: 50%;
+            font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; z-index: 10;
+            display: flex; align-items: center; justify-content: center;
             color: #ef4444;
         }
-
-        /* Responsive 18:9 ratio */
-        .container-18-9 {
-            max-width: 100%;
-            padding: 0 1rem;
+        .popup-canvas-container {
+            width: 100%; border: 1px solid #eee; border-radius: 8px;
+            display: flex; justify-content: center; background: #fafafa;
         }
-
-        @media (min-width: 768px) {
-            .container-18-9 {
-                max-width: 800px;
-            }
+        .popup-canvas-container canvas { max-width: 100%; height: auto; }
+        
+        .download-actions {
+            display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+            margin-top: 10px; padding-top: 15px; border-top: 1px solid #eee;
         }
-
-        @media (min-width: 1024px) {
-            .container-18-9 {
-                max-width: 1600px;
-            }
+        .btn-download {
+            flex: 1; min-width: 100px; padding: 10px; border: none; border-radius: 8px;
+            font-weight: 600; cursor: pointer; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
         }
+        .btn-png { background: #e0e7ff; color: #4338ca; }
+        .btn-jpg { background: #fee2e2; color: #991b1b; }
+        .btn-pdf { background: #d1fae5; color: #065f46; }
 
-        /* Google Drive status indicator */
-        .google-drive-status {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+        /* --- HIDDEN REPORT TEMPLATE --- */
+        #report-template-container {
+            position: fixed; left: -9999px; top: 0; width: 800px; 
+            background: white; padding: 40px; color: #1e1b4b; font-family: 'Poppins', sans-serif;
         }
+        .template-header { text-align: center; border-bottom: 3px solid #7c3aed; padding-bottom: 20px; margin-bottom: 30px; }
+        .template-title { font-size: 24px; font-weight: 700; color: #7c3aed; text-transform: uppercase; letter-spacing: 1px; }
+        .template-subtitle { font-size: 14px; color: #666; margin-top: 5px; }
+        
+        .template-row { display: flex; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .template-label { width: 150px; font-weight: 600; color: #333; font-size: 14px; }
+        .template-value { flex: 1; color: #555; font-size: 14px; }
+        .template-value.highlight { font-weight: 700; color: #1e1b4b; }
 
-        .google-drive-connected {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
+        .template-photo-section {
+            width: 100%; height: auto; min-height: 300px; border: 2px dashed #ddd; border-radius: 8px;
+            margin-top: 20px; overflow: hidden; background: #f9f9f9; display: flex; align-items: center; justify-content: center;
         }
+        .template-photo-section img { width: 100%; height: auto; object-fit: cover; display: block; }
 
-        .google-drive-disconnected {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
+        .template-footer { margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; color: #888; }
+
+        @media (min-width: 601px) {
+            .app-container { max-width: 600px; background: white; box-shadow: 0 0 50px rgba(0,0,0,0.05); height: 95vh; margin-top: 2.5vh; border-radius: 30px; overflow: hidden; border: 8px solid #fff; }
+            body { background: #ede9fe; display: flex; justify-content: center; }
+            .bottom-nav { border-radius: 0 0 22px 22px; bottom: 0; width: 100%; left: 0; right: 0; border: none; border-top: 1px solid rgba(0,0,0,0.05); }
         }
     </style>
 </head>
-<body class="text-white">
-    <!-- Header -->
-    <header class="glass sticky top-0 z-50 fade-in">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                        RSUD Talaud
-                    </h1>
-                    <p class="text-sm text-gray-400">Manajemen Outsourcing</p>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div id="googleDriveStatus" class="google-drive-status google-drive-disconnected">
-                        <i class="fas fa-cloud mr-2"></i>
-                        <span>Google Drive: Tersambung</span>
-                    </div>
-                    <button id="connectGoogleDrive" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-all">
-                        <i class="fas fa-link mr-2"></i>Sambungkan Google Drive
-                    </button>
-                    <button class="relative p-2 hover:bg-white/10 rounded-lg transition-all">
-                        <i class="fas fa-bell text-xl"></i>
-                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </button>
-                    <button class="flex items-center space-x-2 hover:bg-white/10 rounded-lg px-3 py-2 transition-all">
-                        <img src="https://picsum.photos/seed/admin/40/40" alt="Admin" class="w-8 h-8 rounded-full">
-                        <span class="text-sm">Admin</span>
-                    </button>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="header-top">
+                <div class="brand">
+                    <h1>Outsouring Kebersihan 2026 RSUD Talaud</h1>
+                    <span>Sistem Pelaporan Digital Terintegrasi</span>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8 container-18-9">
-        <!-- Dashboard Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 fade-in">
-            <div class="glass rounded-xl p-6 card-hover">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-shield-alt text-blue-400 text-xl"></i>
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- DASHBOARD SECTION -->
+            <section id="view-dashboard" class="view-section active">
+                
+                <!-- Info Bar: Date & Battery -->
+                <div class="info-bar">
+                    <div id="current-date">Memuat...</div>
+                    <div class="battery-indicator" id="battery-info">
+                        <i class="ph-fill ph-battery-charging"></i> <span>...%</span>
                     </div>
-                    <span class="text-2xl font-bold" id="satpamCount">0</span>
                 </div>
-                <h3 class="text-lg font-semibold mb-1">Satpam</h3>
-                <p class="text-sm text-gray-400">Total Personil</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">Total Laporan</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-clean" style="color: #059669;">0</div>
+                        <div class="stat-label">Bersih</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-issue" style="color: #dc2626;">0</div>
+                        <div class="stat-label">Perlu Atensi</div>
+                    </div>
+                    <div class="stat-card" style="display: flex; align-items: center; justify-content: center; padding: 0.5rem;">
+                        <button onclick="navigate('report')" style="background: none; border: none; color: #7c3aed; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;">
+                            <i class="ph ph-plus-circle" style="font-size: 1.5rem;"></i>
+                            Buat Laporan
+                        </button>
+                    </div>
+                </div>
+
+                <h2><i class="ph ph-clock-counter-clockwise"></i> Aktivitas Terkini</h2>
+                <div class="card-container">
+                    <div class="table-wrapper">
+                        <table id="activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Area</th>
+                                    <th>Status</th>
+                                    <th>Jam</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activity-tbody"></tbody>
+                        </table>
+                        <div id="activity-empty" class="empty-state">
+                            <i class="ph ph-clipboard-text"></i>
+                            <p>Belum ada laporan hari ini.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- REPORT SECTION -->
+            <section id="view-report" class="view-section">
+                <h2><i class="ph ph-pencil-simple-line"></i> Form Laporan</h2>
+                <div class="card-container" style="padding: 1.5rem;">
+                    <form id="cleaning-form" onsubmit="handleReportSubmit(event)">
+                        
+                        <!-- Nama Petugas (Bebas) -->
+                        <div class="form-group">
+                            <label>Nama Petugas</label>
+                            <input type="text" id="petugas" class="form-control" placeholder="Ketik Nama Lengkap..." required autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pilih Area / Ruangan</label>
+                            <div class="select-wrapper">
+                                <select id="area" class="form-control" required>
+                                    <option value="" disabled selected>-- Pilih Ruangan --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Kondisi / Status</label>
+                            <div class="select-wrapper">
+                                <select id="status" class="form-control" required>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Catatan Auto Kapital -->
+                        <div class="form-group">
+                            <label>Catatan Tambahan</label>
+                            <textarea id="description" class="form-control" rows="3" placeholder="Tuliskan detail kondisi..." oninput="autoCapitalize(this)"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Foto Bukti</label>
+                            
+                            <div class="photo-selection-grid">
+                                <div class="photo-option-btn" onclick="document.getElementById('camera-input').click()">
+                                    <i class="ph ph-camera"></i>
+                                    <span>Buka Kamera</span>
+                                </div>
+                                <div class="photo-option-btn" onclick="document.getElementById('gallery-input').click()">
+                                    <i class="ph ph-image"></i>
+                                    <span>Pilih Galeri</span>
+                                </div>
+                            </div>
+
+                            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handleFileSelect(this)">
+                            <input type="file" id="gallery-input" accept="image/*" style="display: none;" onchange="handleFileSelect(this)">
+                            
+                            <div class="preview-box" id="preview-box">
+                                <button type="button" class="remove-btn" onclick="clearPhoto()">&times;</button>
+                                <img id="preview-img" src="" alt="Preview">
+                            </div>
+                            <p id="file-label" style="text-align: center; font-size: 0.8rem; color: #9ca3af; margin-top: 5px; display: none;">Foto Terpilih</p>
+                        </div>
+
+                        <button type="submit" class="btn-submit" id="btn-submit">
+                            <i class="ph-bold ph-paper-plane-right"></i> Kirim Laporan & Gambar
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- HISTORY SECTION -->
+            <section id="view-history" class="view-section">
+                <h2><i class="ph ph-lock-key"></i> Riwayat Permanen</h2>
+                <div class="card-container">
+                    <div class="table-wrapper">
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Waktu Lengkap</th>
+                                    <th>Area</th>
+                                    <th>Kondisi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody"></tbody>
+                        </table>
+                        <div id="history-empty" class="empty-state">
+                            <i class="ph ph-lock-key"></i>
+                            <p>Belum ada riwayat laporan.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="navigate('dashboard')">
+                <i class="ph ph-house"></i>
+                <span>Beranda</span>
+            </div>
+            <div class="nav-item" onclick="navigate('report')">
+                <i class="ph ph-plus-circle"></i>
+                <span>Lapor</span>
+            </div>
+            <div class="nav-item" onclick="navigate('history')">
+                <i class="ph ph-lock-key"></i>
+                <span>Riwayat</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-text">Sedang Memproses...</div>
+    </div>
+
+    <!-- HISTORY POPUP MODAL -->
+    <div class="popup-overlay" id="history-popup">
+        <div class="popup-content">
+            <button class="close-popup-btn" onclick="closePopup()">✕</button>
+            <h3 style="text-align: center; margin-bottom: 10px; color: #7c3aed;">Detail Laporan</h3>
+            
+            <div class="popup-canvas-container" id="popup-canvas-area">
+                <div class="spinner" style="width:30px; height:30px; border-width:3px;"></div>
             </div>
 
-            <div class="glass rounded-xl p-6 card-hover">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-car text-green-400 text-xl"></i>
-                    </div>
-                    <span class="text-2xl font-bold" id="sopirCount">0</span>
-                </div>
-                <h3 class="text-lg font-semibold mb-1">Sopir</h3>
-                <p class="text-sm text-gray-400">Total Personil</p>
-            </div>
-
-            <div class="glass rounded-xl p-6 card-hover">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-broom text-purple-400 text-xl"></i>
-                    </div>
-                    <span class="text-2xl font-bold" id="kebersihanCount">0</span>
-                </div>
-                <h3 class="text-lg font-semibold mb-1">Kebersihan</h3>
-                <p class="text-sm text-gray-400">Total Personil</p>
-            </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="glass rounded-xl p-1 mb-6 fade-in">
-            <div class="flex space-x-1">
-                <button class="tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium transition-all" data-tab="satpam">
-                    <i class="fas fa-shield-alt mr-2"></i>Satpam
+            <div class="download-actions" id="popup-download-btns" style="display:none;">
+                <button class="btn-download btn-png" onclick="downloadImage('png')">
+                    <i class="ph ph-image"></i> PNG
                 </button>
-                <button class="tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium transition-all" data-tab="sopir">
-                    <i class="fas fa-car mr-2"></i>Sopir
+                <button class="btn-download btn-jpg" onclick="downloadImage('jpeg')">
+                    <i class="ph ph-file-image"></i> JPG
                 </button>
-                <button class="tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium transition-all" data-tab="kebersihan">
-                    <i class="fas fa-broom mr-2"></i>Kebersihan
-                </button>
-            </div>
-            <div class="tab-indicator h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg mt-1"></div>
-        </div>
-
-        <!-- Content Area -->
-        <div class="glass rounded-xl p-6 fade-in">
-            <!-- Search and Actions -->
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
-                <div class="relative w-full md:w-96">
-                    <input type="text" id="searchInput" placeholder="Cari nama, NIP, atau divisi..." 
-                           class="form-input w-full pl-10 pr-4 py-2 rounded-lg text-white placeholder-gray-400">
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                </div>
-                <div class="flex space-x-3">
-                    <button id="exportBtn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all">
-                        <i class="fas fa-file-export mr-2"></i>Export
-                    </button>
-                    <button id="addBtn" class="btn-primary px-6 py-2 rounded-lg text-white font-medium transition-all">
-                        <i class="fas fa-plus mr-2"></i>Tambah Data
-                    </button>
-                </div>
-            </div>
-
-            <!-- Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="border-b border-gray-700">
-                            <th class="text-left py-3 px-4">No</th>
-                            <th class="text-left py-3 px-4">Nama</th>
-                            <th class="text-left py-3 px-4">NIP</th>
-                            <th class="text-left py-3 px-4">Divisi</th>
-                            <th class="text-left py-3 px-4">Status</th>
-                            <th class="text-left py-3 px-4">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dataTable">
-                        <!-- Data will be inserted here -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="flex justify-center items-center mt-6 space-x-2">
-                <button class="px-3 py-1 rounded-lg hover:bg-white/10 transition-all">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400">1</button>
-                <button class="px-3 py-1 rounded-lg hover:bg-white/10 transition-all">2</button>
-                <button class="px-3 py-1 rounded-lg hover:bg-white/10 transition-all">3</button>
-                <button class="px-3 py-1 rounded-lg hover:bg-white/10 transition-all">
-                    <i class="fas fa-chevron-right"></i>
+                <button class="btn-download btn-pdf" onclick="downloadPDF()">
+                    <i class="ph ph-file-pdf"></i> PDF
                 </button>
             </div>
-        </div>
-    </main>
-
-    <!-- Modal -->
-    <div id="modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="glass rounded-xl p-6 w-full max-w-md modal-enter">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold" id="modalTitle">Tambah Data</h2>
-                <button id="closeModal" class="hover:bg-white/10 rounded-lg p-2 transition-all">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="form">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Nama</label>
-                        <input type="text" id="nama" required class="form-input w-full px-4 py-2 rounded-lg text-white">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-2">NIP</label>
-                        <input type="text" id="nip" required class="form-input w-full px-4 py-2 rounded-lg text-white">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Divisi</label>
-                        <select id="divisi" required class="form-input w-full px-4 py-2 rounded-lg text-white">
-                            <option value="">Pilih Divisi</option>
-                            <option value="Satpam">Satpam</option>
-                            <option value="Sopir">Sopir</option>
-                            <option value="Kebersihan">Kebersihan</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Status</label>
-                        <select id="status" required class="form-input w-full px-4 py-2 rounded-lg text-white">
-                            <option value="Aktif">Aktif</option>
-                            <option value="Tidak Aktif">Tidak Aktif</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex space-x-3 mt-6">
-                    <button type="button" id="cancelBtn" class="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all">
-                        Batal
-                    </button>
-                    <button type="submit" class="flex-1 btn-primary px-4 py-2 rounded-lg text-white font-medium transition-all">
-                        Simpan
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
-    <!-- Success Toast -->
-    <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden transform translate-y-full transition-transform">
-        <i class="fas fa-check-circle mr-2"></i>
-        <span id="toastMessage">Berhasil!</span>
+    <!-- HIDDEN TEMPLATE UNTUK GENERATE GAMBAR -->
+    <div id="report-template-container">
+        <div class="template-header">
+            <div class="template-title">Laporan Kebersihan</div>
+            <div class="template-subtitle">RSUD TALAUD - Outsourcing 2026</div>
+        </div>
+        
+        <div class="template-body">
+            <div class="template-row">
+                <div class="template-label">Waktu Lapor</div>
+                <div class="template-value" id="tpl-time">-</div>
+            </div>
+            <div class="template-row">
+                <div class="template-label">Nama Petugas</div>
+                <div class="template-value highlight" id="tpl-petugas">-</div>
+            </div>
+            <div class="template-row">
+                <div class="template-label">Area Ruangan</div>
+                <div class="template-value highlight" id="tpl-area">-</div>
+            </div>
+            <div class="template-row">
+                <div class="template-label">Status</div>
+                <div class="template-value highlight" id="tpl-status">-</div>
+            </div>
+            <div class="template-row" style="border-bottom: none;">
+                <div class="template-label">Catatan</div>
+                <div class="template-value" id="tpl-desc">-</div>
+            </div>
+        </div>
+
+        <div class="template-photo-section">
+            <img id="tpl-photo" src="" style="display:none;" alt="Bukti Foto">
+        </div>
+
+        <div class="template-footer">
+            <div>Dokumen ini digenerate secara otomatis oleh sistem.</div>
+            <div id="tpl-timestamp">-</div>
+        </div>
     </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
 
     <script>
-        // Google Drive API Configuration
-        const CLIENT_ID = 'YOUR_CLIENT_ID'; // Ganti dengan Client ID Anda
-        const API_KEY = 'YOUR_API_KEY'; // Ganti dengan API Key Anda
-        const SCOPES = 'https://www.googleapis.com/auth/drive.file';
-        const FOLDER_ID = '1zWtn8b9lqhnuyy_Tk8tKRhaJ9m-hUE2R'; // Folder ID dari URL yang Anda berikan
-        const FILE_NAME = 'RSUD_Talaud_Data.xlsx';
-        
-        let gapi = null;
-        let googleDriveConnected = false;
-        
-        // Data storage
-        let data = {
-            satpam: [
-                { id: 1, nama: 'Ahmad Fauzi', nip: '198001012019011001', status: 'Aktif' },
-                { id: 2, nama: 'Budi Santoso', nip: '198502022020022002', status: 'Aktif' },
-                { id: 3, nama: 'Cahyono', nip: '199003032021033003', status: 'Tidak Aktif' }
-            ],
-            sopir: [
-                { id: 4, nama: 'Dedi Pratama', nip: '198104042022044004', status: 'Aktif' },
-                { id: 5, nama: 'Eko Saputra', nip: '198205052023055005', status: 'Aktif' }
-            ],
-            kebersihan: [
-                { id: 6, nama: 'Fina Sari', nip: '198306062024066006', status: 'Aktif' },
-                { id: 7, nama: 'Gita Wulandari', nip: '198407072025077007', status: 'Aktif' },
-                { id: 8, nama: 'Hendra Wijaya', nip: '198508082026088008', status: 'Tidak Aktif' }
-            ]
-        };
+        // --- CONFIG TELEGRAM ---
+        const TELEGRAM_BOT_TOKEN = '8552608746:AAEAmKIDE3bqQkdXz6jNG5kV2-7o7S8URvI';
+        const TELEGRAM_CHAT_ID = '-1003538080315';
 
-        let currentTab = 'satpam';
-        let editingId = null;
+        // --- DATA SETUP ---
+        const rawAreas = [
+            "igd", "ruang bersalin", "edelweis (VIP)", "dahlia", "isolasi", 
+            "fisioterapi", "pendaftaran", "apotek", "keuangan", "kantor", 
+            "laboratorium", "anggrek", "crysant", "OK/IBS", "ipal", "ipsrs", 
+            "binatu", "gizi/dapur", "halaman", "koridor", "nicu", "bougenville", 
+            "poliklinik", "icu", "ruang jenazah", "gudang apotek", "limbah" // DITAMBAHKAN LIMBAH
+        ];
+        const sortedAreas = rawAreas.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            renderTable();
-            updateCounts();
-            setupEventListeners();
-            setupTabs();
-            initGoogleDrive();
+        const hospitalStatuses = [
+            { label: "Bersih (Siap Pakai)", value: "Bersih", class: "status-bersih" },
+            { label: "Kotor Ringan", value: "Kotor Ringan", class: "status-kotor" },
+            { label: "Kotor Berat", value: "Kotor Berat", class: "status-kotor-berat" },
+            { label: "Perlu Perbaikan Sarana", value: "Perlu Perbaikan", class: "status-perbaikan" },
+            { label: "Menunggu Stok Alat/Bahan", value: "Stok Kosong", class: "status-stok" }
+        ];
+
+        let reports = []; 
+        const savedReports = localStorage.getItem('rsudTalaudReports');
+        if (savedReports) reports = JSON.parse(savedReports);
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            populateDropdown();
+            populateStatus();
+            updateDate();
+            updateBattery(); // Cek baterai saat load
+            renderDashboard();
+            renderHistory();
+            
+            setInterval(updateDate, 60000);
         });
 
-        // Initialize Google Drive API
-        function initGoogleDrive() {
-            gapi.load('client:auth2', () => {
-                gapi.client.init({
-                    apiKey: API_KEY,
-                    clientId: CLIENT_ID,
-                    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-                    scope: SCOPES
-                }).then(() => {
-                    // Check if user is already signed in
-                    const authInstance = gapi.auth2.getAuthInstance();
-                    const isSignedIn = authInstance.isSignedIn.get();
-                    
-                    if (isSignedIn) {
-                        googleDriveConnected = true;
-                        updateGoogleDriveStatus();
-                    }
-                });
-            });
+        // --- NAVIGATION ---
+        function navigate(viewId) {
+            const icons = { 'dashboard': 0, 'report': 1, 'history': 2 };
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item')[icons[viewId]].classList.add('active');
+
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+
+            if (viewId === 'dashboard') renderDashboard();
+            if (viewId === 'history') renderHistory();
         }
 
-        // Update Google Drive connection status
-        function updateGoogleDriveStatus() {
-            const statusElement = document.getElementById('googleDriveStatus');
-            const connectButton = document.getElementById('connectGoogleDrive');
-            
-            if (googleDriveConnected) {
-                statusElement.className = 'google-drive-status google-drive-connected';
-                statusElement.innerHTML = '<i class="fas fa-check-circle mr-2"></i><span>Google Drive: Tersambung</span>';
-                connectButton.style.display = 'none';
+        // --- BATTERY FUNCTION ---
+        async function updateBattery() {
+            const batInfo = document.getElementById('battery-info');
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    
+                    const updateUI = () => {
+                        const percentage = Math.round(battery.level * 100);
+                        const icon = battery.charging ? 'ph-lightning' : 'ph-battery-full';
+                        const color = battery.charging ? '#10b981' : (percentage < 20 ? '#ef4444' : '#10b981');
+                        
+                        batInfo.innerHTML = `
+                            <i class="ph-fill ${icon}" style="color:${color}"></i> 
+                            <span>${percentage}%</span>
+                        `;
+                    };
+
+                    updateUI();
+                    
+                    battery.addEventListener('levelchange', updateUI);
+                    battery.addEventListener('chargingchange', updateUI);
+                } catch(e) {
+                    console.log("Battery API error or denied", e);
+                    batInfo.innerHTML = `<i class="ph-fill ph-battery"></i> <span>--</span>`;
+                }
             } else {
-                statusElement.className = 'google-drive-status google-drive-disconnected';
-                statusElement.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i><span>Google Drive: Belum Tersambung</span>';
-                connectButton.style.display = 'inline-block';
+                batInfo.innerHTML = `<i class="ph-fill ph-battery"></i> <span>--</span>`;
             }
         }
 
-        // Setup tabs
-        function setupTabs() {
-            const tabs = document.querySelectorAll('.tab-btn');
-            const indicator = document.querySelector('.tab-indicator');
-            
-            tabs.forEach((tab, index) => {
-                tab.addEventListener('click', function() {
-                    currentTab = this.dataset.tab;
-                    updateActiveTab();
-                    renderTable();
+        // --- AUTO CAPITALIZE ---
+        function autoCapitalize(input) {
+            input.value = input.value.toUpperCase();
+        }
+
+        // --- RENDER FUNCTIONS ---
+        function populateDropdown() {
+            const select = document.getElementById('area');
+            sortedAreas.forEach(area => {
+                const option = document.createElement('option');
+                option.value = area;
+                option.text = area.charAt(0).toUpperCase() + area.slice(1);
+                select.appendChild(option);
+            });
+        }
+
+        function populateStatus() {
+            const select = document.getElementById('status');
+            hospitalStatuses.forEach(s => {
+                const option = document.createElement('option');
+                option.value = s.value;
+                option.text = s.label;
+                select.appendChild(option);
+            });
+        }
+
+        function updateDate() {
+            const now = new Date();
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+            const dateStr = now.toLocaleDateString('id-ID', dateOptions);
+            const timeStr = now.toLocaleTimeString('id-ID', timeOptions);
+            document.getElementById('current-date').innerText = `${dateStr} | ${timeStr}`;
+        }
+
+        function getFullDateTimeString(isoString) {
+            const date = new Date(isoString);
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+            return `${date.toLocaleDateString('id-ID', dateOptions)}, ${date.toLocaleTimeString('id-ID', timeOptions)}`;
+        }
+
+        function getStatusClass(statusValue) {
+            const found = hospitalStatuses.find(s => s.value === statusValue);
+            return found ? found.class : 'status-kotor';
+        }
+
+        function renderDashboard() {
+            const total = reports.length;
+            const clean = reports.filter(r => r.status === "Bersih").length;
+            const issue = reports.filter(r => r.status !== "Bersih").length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-clean').innerText = clean;
+            document.getElementById('stat-issue').innerText = issue;
+
+            const tbody = document.getElementById('activity-tbody');
+            const emptyState = document.getElementById('activity-empty');
+            const tableEl = document.getElementById('activity-table');
+
+            tbody.innerHTML = '';
+
+            if (reports.length === 0) {
+                tableEl.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                tableEl.style.display = 'table';
+                emptyState.style.display = 'none';
+
+                const recentReports = [...reports].reverse().slice(0, 5);
+                recentReports.forEach(r => {
+                    const row = document.createElement('tr');
+                    const date = new Date(r.timestamp);
+                    const timeStr = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: true });
+                    
+                    row.innerHTML = `
+                        <td><span style="font-weight:600; color:#1e1b4b;">${r.area}</span></td>
+                        <td><span class="status-badge ${getStatusClass(r.status)}">${r.status}</span></td>
+                        <td style="font-size: 0.75rem; color: #6b7280;">${timeStr}</td>
+                    `;
+                    tbody.appendChild(row);
                 });
-            });
-
-            updateActiveTab();
+            }
         }
 
-        function updateActiveTab() {
-            const tabs = document.querySelectorAll('.tab-btn');
-            const indicator = document.querySelector('.tab-indicator');
-            
-            tabs.forEach(tab => {
-                tab.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-purple-500', 'text-white');
-                tab.classList.add('hover:bg-white/10');
-            });
+        function renderHistory() {
+            const tbody = document.getElementById('history-tbody');
+            const emptyState = document.getElementById('history-empty');
+            const tableEl = document.getElementById('history-table');
 
-            const activeTab = document.querySelector(`[data-tab="${currentTab}"]`);
-            activeTab.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-purple-500', 'text-white');
-            activeTab.classList.remove('hover:bg-white/10');
+            tbody.innerHTML = '';
 
-            // Update indicator position
-            const tabRect = activeTab.getBoundingClientRect();
-            const containerRect = activeTab.parentElement.getBoundingClientRect();
-            indicator.style.width = `${tabRect.width}px`;
-            indicator.style.transform = `translateX(${tabRect.left - containerRect.left}px)`;
+            if (reports.length === 0) {
+                tableEl.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                tableEl.style.display = 'table';
+                emptyState.style.display = 'none';
+
+                const sortedReports = [...reports].reverse();
+                sortedReports.forEach(r => {
+                    const row = document.createElement('tr');
+                    // Tambahkan event klik untuk membuka popup
+                    row.onclick = () => viewReport(r.id);
+                    
+                    row.innerHTML = `
+                        <td style="font-size: 0.75rem; color: #6b7280;">${getFullDateTimeString(r.timestamp)}</td>
+                        <td style="font-weight:600; color:#1e1b4b;">${r.area}</td>
+                        <td><span class="status-badge ${getStatusClass(r.status)}">${r.status}</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
         }
 
-        // Setup event listeners
-        function setupEventListeners() {
-            // Modal controls
-            document.getElementById('addBtn').addEventListener('click', openModal);
-            document.getElementById('closeModal').addEventListener('click', closeModal);
-            document.getElementById('cancelBtn').addEventListener('click', closeModal);
-            document.getElementById('modal').addEventListener('click', function(e) {
-                if (e.target === this) closeModal();
-            });
+        // --- FORM & TELEGRAM INTEGRATION ---
+        let currentPhotoFile = null;
 
-            // Form submission
-            document.getElementById('form').addEventListener('submit', handleSubmit);
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                currentPhotoFile = input.files[0];
+                
+                const previewBox = document.getElementById('preview-box');
+                const previewImg = document.getElementById('preview-img');
+                const label = document.getElementById('file-label');
 
-            // Search
-            document.getElementById('searchInput').addEventListener('input', function() {
-                renderTable(this.value);
-            });
-
-            // Export
-            document.getElementById('exportBtn').addEventListener('click', exportData);
-            
-            // Google Drive connection
-            document.getElementById('connectGoogleDrive').addEventListener('click', connectToGoogleDrive);
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewBox.classList.add('has-file');
+                    label.style.display = 'block';
+                }
+                reader.readAsDataURL(currentPhotoFile);
+            }
         }
 
-        // Connect to Google Drive
-        function connectToGoogleDrive() {
-            gapi.auth2.getAuthInstance().signIn().then(() => {
-                googleDriveConnected = true;
-                updateGoogleDriveStatus();
-                showToast('Google Drive berhasil tersambung!');
-            }).catch(error => {
-                console.error('Error connecting to Google Drive:', error);
-                showToast('Gagal tersambung ke Google Drive', 'error');
-            });
+        function clearPhoto() {
+            currentPhotoFile = null;
+            document.getElementById('preview-box').classList.remove('has-file');
+            document.getElementById('preview-img').src = "";
+            document.getElementById('file-label').style.display = 'none';
+            document.getElementById('camera-input').value = ""; 
+            document.getElementById('gallery-input').value = "";
         }
 
-        // Save data to Google Drive
-        async function saveToGoogleDrive() {
-            if (!googleDriveConnected) {
-                showToast('Silakan sambungkan Google Drive terlebih dahulu', 'error');
+        // Helper untuk mengisi template HTML (Reusable)
+        function fillTemplate(data, photoUrl) {
+            document.getElementById('tpl-time').innerText = getFullDateTimeString(data.timestamp);
+            document.getElementById('tpl-petugas').innerText = data.petugas;
+            document.getElementById('tpl-area').innerText = data.area;
+            document.getElementById('tpl-status').innerText = data.status;
+            document.getElementById('tpl-desc').innerText = data.desc || "-";
+            document.getElementById('tpl-timestamp').innerText = data.id;
+
+            const tplPhoto = document.getElementById('tpl-photo');
+            if (photoUrl) {
+                tplPhoto.src = photoUrl;
+                tplPhoto.style.display = 'block';
+            } else {
+                tplPhoto.style.display = 'none';
+            }
+        }
+
+        async function handleReportSubmit(e) {
+            e.preventDefault();
+
+            if (!currentPhotoFile) {
+                showToast("Harap pilih atau ambil foto bukti!", "error");
                 return;
             }
 
+            const petugas = document.getElementById('petugas').value;
+            const area = document.getElementById('area').value;
+            const status = document.getElementById('status').value;
+            const desc = document.getElementById('description').value;
+            const now = new Date();
+
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
+            const btnSubmit = document.getElementById('btn-submit');
+            
+            loadingOverlay.style.display = 'flex';
+            btnSubmit.disabled = true;
+
             try {
-                // Create workbook with three sheets
-                const wb = XLSX.utils.book_new();
-                
-                // Create data for each category
-                const satpamData = data.satpam.map((item, index) => ({
-                    'No': index + 1,
-                    'Nama': item.nama,
-                    'NIP': item.nip,
-                    'Status': item.status
-                }));
-                
-                const sopirData = data.sopir.map((item, index) => ({
-                    'No': index + 1,
-                    'Nama': item.nama,
-                    'NIP': item.nip,
-                    'Status': item.status
-                }));
-                
-                const kebersihanData = data.kebersihan.map((item, index) => ({
-                    'No': index + 1,
-                    'Nama': item.nama,
-                    'NIP': item.nip,
-                    'Status': item.status
-                }));
-                
-                // Create sheets
-                const wsSatpam = XLSX.utils.json_to_sheet(satpamData);
-                const wsSopir = XLSX.utils.json_to_sheet(sopirData);
-                const wsKebersihan = XLSX.utils.json_to_sheet(kebersihanData);
-                
-                // Add sheets to workbook
-                XLSX.utils.book_append_sheet(wb, wsSatpam, 'Satpam');
-                XLSX.utils.book_append_sheet(wb, wsSopir, 'Sopir');
-                XLSX.utils.book_append_sheet(wb, wsKebersihan, 'Kebersihan');
-                
-                // Generate Excel file
-                const excelData = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                const blob = new Blob([excelData], { type: 'application/octet-stream' });
-                
-                // Check if file exists
-                const fileList = await gapi.client.drive.files.list({
-                    q: `name='${FILE_NAME}' and parents in '${FOLDER_ID}' and trashed=false`,
-                    fields: 'files(id, name)'
-                });
-                
-                if (fileList.result.files.length > 0) {
-                    // File exists, update it
-                    const fileId = fileList.result.files[0].id;
-                    await gapi.client.drive.files.update({
-                        fileId: fileId,
-                        media: {
-                            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            body: blob
-                        }
-                    });
-                    showToast('Data berhasil diperbarui di Google Drive!');
-                } else {
-                    // File doesn't exist, create it
-                    const metadata = {
-                        name: FILE_NAME,
-                        parents: [FOLDER_ID],
-                        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                    };
+                const fullTimeStr = getFullDateTimeString(now);
+                const reportData = {
+                    id: Date.now(),
+                    timestamp: now.toISOString(),
+                    petugas, area, status, desc, fullTimeStr
+                };
+
+                // Load photo for template
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    fillTemplate(reportData, e.target.result);
                     
-                    await gapi.client.drive.files.create({
-                        resource: metadata,
-                        media: {
-                            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            body: blob
-                        }
+                    // Generate image for Telegram
+                    loadingText.innerText = "Membuat gambar laporan...";
+                    const canvas = await html2canvas(document.getElementById('report-template-container'), {
+                        scale: 1.5, logging: false, useCORS: true, backgroundColor: "#ffffff"
                     });
-                    showToast('Data berhasil disimpan ke Google Drive!');
-                }
+
+                    canvas.toBlob(async (formBlob) => {
+                        loadingText.innerText = "Mengirim ke Telegram...";
+                        await sendToTelegram(formBlob, currentPhotoFile, petugas, area, status, fullTimeStr);
+                        
+                        // Finalize
+                        reports.push(reportData);
+                        localStorage.setItem('rsudTalaudReports', JSON.stringify(reports));
+                        
+                        document.getElementById('cleaning-form').reset();
+                        clearPhoto();
+                        btnSubmit.disabled = false;
+                        loadingOverlay.style.display = 'none';
+                        
+                        showToast("Laporan & Gambar Terkirim!", "success");
+                        navigate('dashboard');
+                    }, 'image/png', 0.9);
+                };
+                reader.readAsDataURL(currentPhotoFile);
+
             } catch (error) {
-                console.error('Error saving to Google Drive:', error);
-                showToast('Gagal menyimpan data ke Google Drive', 'error');
+                console.error(error);
+                loadingOverlay.style.display = 'none';
+                btnSubmit.disabled = false;
+                showToast("Terjadi kesalahan sistem.", "error");
             }
         }
 
-        // Render table
-        function renderTable(searchTerm = '') {
-            const tbody = document.getElementById('dataTable');
-            const currentData = data[currentTab] || [];
-            
-            let filteredData = currentData;
-            if (searchTerm) {
-                filteredData = currentData.filter(item => 
-                    item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    item.nip.toLowerCase().includes(searchTerm.toLowerCase())
-                );
-            }
+        async function sendToTelegram(formImageBlob, photoFile, petugas, area, status, fullTimeStr) {
+            const formData = new FormData();
+            const captionText = `🏥 *LAPORAN KEbersihan RSUD TALAUD*\n\n👤 Petugas: ${petugas}\n📍 Area: ${area}\n🚩 Status: ${status}\n⏱ Waktu: ${fullTimeStr}`;
 
-            tbody.innerHTML = filteredData.map((item, index) => `
-                <tr class="border-b border-gray-700 hover:bg-white/5 transition-all">
-                    <td class="py-3 px-4">${index + 1}</td>
-                    <td class="py-3 px-4 font-medium">${item.nama}</td>
-                    <td class="py-3 px-4 text-gray-400">${item.nip}</td>
-                    <td class="py-3 px-4">
-                        <span class="status-badge ${item.status === 'Aktif' ? 'status-active' : 'status-inactive'}">
-                            ${item.status}
-                        </span>
-                    </td>
-                    <td class="py-3 px-4">
-                        <button onclick="editItem(${item.id})" class="text-blue-400 hover:text-blue-300 mr-3 transition-all">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="deleteItem(${item.id})" class="text-red-400 hover:text-red-300 transition-all">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+            const mediaPayload = [
+                { type: 'photo', media: 'attach://form_image', caption: captionText, parse_mode: 'Markdown' },
+                { type: 'photo', media: 'attach://evidence_photo' }
+            ];
+
+            formData.append('chat_id', TELEGRAM_CHAT_ID);
+            formData.append('media', JSON.stringify(mediaPayload));
+            formData.append('form_image', formImageBlob, 'laporan_form.png');
+            formData.append('evidence_photo', photoFile, 'bukti_foto.jpg');
+
+            const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMediaGroup`, {
+                method: 'POST', body: formData
+            });
+
+            const data = await response.json();
+            if (!data.ok) throw new Error(data.description || 'Telegram API Error');
         }
 
-        // Update counts
-        function updateCounts() {
-            document.getElementById('satpamCount').textContent = data.satpam.length;
-            document.getElementById('sopirCount').textContent = data.sopir.length;
-            document.getElementById('kebersihanCount').textContent = data.kebersihan.length;
+        // --- POPUP & DOWNLOAD LOGIC ---
+        let currentReportCanvas = null;
+
+        function viewReport(id) {
+            const report = reports.find(r => r.id === id);
+            if(!report) return;
+
+            const popup = document.getElementById('history-popup');
+            const canvasArea = document.getElementById('popup-canvas-area');
+            const dlBtns = document.getElementById('popup-download-btns');
+            
+            popup.style.display = 'flex';
+            dlBtns.style.display = 'none';
+            canvasArea.innerHTML = '<div class="spinner" style="width:30px; height:30px; border-width:3px;"></div>';
+
+            // Simpan foto di localStorage sebagai string base64 saat laporan dibuat
+            // Namun, karena kita hanya menyimpan teks di localstorage untuk hemat memori, 
+            // kita perlu menggambar ulang tanpa foto asli jika tidak tersimpan.
+            // Solusi: Generate ulang form HTML.
+            
+            const reportData = { ...report, fullTimeStr: getFullDateTimeString(report.timestamp) };
+            fillTemplate(reportData, null); // Foto asli mungkin hilang dari cache, tampilkan placeholder atau tanpa foto
+
+            html2canvas(document.getElementById('report-template-container'), {
+                scale: 1.5, logging: false, useCORS: true, backgroundColor: "#ffffff"
+            }).then(canvas => {
+                canvasArea.innerHTML = '';
+                canvasArea.appendChild(canvas);
+                currentReportCanvas = canvas;
+                dlBtns.style.display = 'flex';
+            });
         }
 
-        // Modal functions
-        function openModal(id = null) {
-            const modal = document.getElementById('modal');
-            const title = document.getElementById('modalTitle');
-            const form = document.getElementById('form');
-            
-            editingId = id;
-            
-            if (id) {
-                title.textContent = 'Edit Data';
-                const item = findItem(id);
-                if (item) {
-                    document.getElementById('nama').value = item.nama;
-                    document.getElementById('nip').value = item.nip;
-                    document.getElementById('divisi').value = currentTab;
-                    document.getElementById('status').value = item.status;
-                }
-            } else {
-                title.textContent = 'Tambah Data';
-                form.reset();
-                document.getElementById('divisi').value = currentTab;
-            }
-            
-            modal.classList.remove('hidden');
+        function closePopup() {
+            document.getElementById('history-popup').style.display = 'none';
         }
 
-        function closeModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.add('hidden');
-            editingId = null;
+        function downloadImage(format) {
+            if (!currentReportCanvas) return;
+            const link = document.createElement('a');
+            link.download = `Laporan_RSUD_${Date.now()}.${format}`;
+            link.href = currentReportCanvas.toDataURL(`image/${format}`);
+            link.click();
         }
 
-        // Find item
-        function findItem(id) {
-            const currentData = data[currentTab] || [];
-            return currentData.find(item => item.id === id);
+        function downloadPDF() {
+            if (!currentReportCanvas) return;
+            const { jsPDF } = window.jspdf;
+            const imgData = currentReportCanvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const width = pdf.internal.pageSize.getWidth();
+            const height = (currentReportCanvas.height * width) / currentReportCanvas.width;
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+            pdf.save(`Laporan_RSUD_${Date.now()}.pdf`);
         }
 
-        // Handle form submission
-        function handleSubmit(e) {
-            e.preventDefault();
-            
-            const formData = {
-                nama: document.getElementById('nama').value,
-                nip: document.getElementById('nip').value,
-                status: document.getElementById('status').value
-            };
-
-            if (editingId) {
-                // Update existing item
-                const currentData = data[currentTab] || [];
-                const index = currentData.findIndex(item => item.id === editingId);
-                if (index !== -1) {
-                    currentData[index] = { ...currentData[index], ...formData };
-                }
-                showToast('Data berhasil diperbarui!');
-            } else {
-                // Add new item
-                const newId = Math.max(...Object.values(data).flat().map(item => item.id), 0) + 1;
-                data[currentTab].push({ id: newId, ...formData });
-                showToast('Data berhasil ditambahkan!');
-            }
-
-            closeModal();
-            renderTable();
-            updateCounts();
-            
-            // Save to Google Drive
-            saveToGoogleDrive();
-        }
-
-        // Edit item
-        function editItem(id) {
-            openModal(id);
-        }
-
-        // Delete item
-        function deleteItem(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-                const currentData = data[currentTab] || [];
-                data[currentTab] = currentData.filter(item => item.id !== id);
-                renderTable();
-                updateCounts();
-                showToast('Data berhasil dihapus!');
-                
-                // Save to Google Drive
-                saveToGoogleDrive();
-            }
-        }
-
-        // Show toast
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            
-            toastMessage.textContent = message;
-            
-            if (type === 'error') {
-                toast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full transition-transform';
-            } else {
-                toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full transition-transform';
-            }
-            
-            toast.classList.remove('hidden', 'translate-y-full');
+        // --- UTILS ---
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="ph-fill ${type === 'success' ? 'ph-check-circle' : 'ph-warning-circle'}" style="color: ${type === 'success' ? '#10b981' : '#ef4444'}; font-size: 1.2rem;"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
             
             setTimeout(() => {
-                toast.classList.add('translate-y-full');
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                }, 300);
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                setTimeout(() => toast.remove(), 300);
             }, 3000);
-        }
-
-        // Export data
-        function exportData() {
-            const currentData = data[currentTab] || [];
-            const csvContent = "data:text/csv;charset=utf-8," 
-                + "Nama,NIP,Status\n"
-                + currentData.map(item => `${item.nama},${item.nip},${item.status}`).join("\n");
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `data_${currentTab}_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showToast('Data berhasil diekspor!');
         }
     </script>
 </body>
